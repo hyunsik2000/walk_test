@@ -16,7 +16,7 @@ class registerUser extends StatefulWidget {
 Future<bool> registerUsers(
     String email, String password, String nickname, String name, BuildContext context) async {
   try {
-        var Url = Uri.parse("http://local:8080/auth/register"); //본인 IP 주소를  localhost 대신 넣기
+        var Url = Uri.parse("http://192.168.56.1:8080/auth/register"); //본인 IP 주소를  localhost 대신 넣기
     var response = await http.post(Url,
         headers: <String, String>{"Content-Type": "application/json"},
         body: jsonEncode(<String, String>{
@@ -37,6 +37,7 @@ Future<bool> registerUsers(
               return MyAlertDialog(title: '처리 메시지',
                   content: '회원가입이 완료되었습니다');
             });
+        Navigator.of(context).pop();
         return true;
       }
     } else if (response.statusCode == 400 || response.statusCode == 409) {
@@ -91,12 +92,6 @@ class registerUserState extends State<registerUser> {
                   child: TextFormField(
                     style: textStyle,
                     controller: emailController,
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return '땡';
-                      }
-                      return null;
-                    },
                     decoration: InputDecoration(
                         labelText: 'email',
                         hintText: '작성해주세요',
@@ -110,12 +105,6 @@ class registerUserState extends State<registerUser> {
                   child: TextFormField(
                     style: textStyle,
                     controller: passwordController,
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return '땡';
-                      }
-                      return null;
-                    },
                     decoration: InputDecoration(
                         labelText: '비밀번호',
                         hintText: '작성해주세요',
@@ -129,12 +118,6 @@ class registerUserState extends State<registerUser> {
                   child: TextFormField(
                     style: textStyle,
                     controller: nicknameController,
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return '땡';
-                      }
-                      return null;
-                    },
                     decoration: InputDecoration(
                         labelText: '닉네임',
                         hintText: '작성해주세요',
@@ -148,12 +131,6 @@ class registerUserState extends State<registerUser> {
                   child: TextFormField(
                     style: textStyle,
                     controller: nameController,
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return '땡';
-                      }
-                      return null;
-                    },
                     decoration: InputDecoration(
                         labelText: '이름',
                         hintText: '작성해주세요',
@@ -175,7 +152,6 @@ class registerUserState extends State<registerUser> {
               if (registrationResult) {
                 // 회원 등록 성공
                 print('회원 등록 성공');
-
                 // 이후 사용자 정보를 가져오는 요청 또는 다른 작업을 수행
                 // UserModel userModel = await fetchUserInfo(email);
               } else {

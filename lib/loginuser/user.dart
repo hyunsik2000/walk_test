@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:project123/loginuser/register.dart';
 import 'package:project123/App/main1.dart';
 
+import 'login.dart';
+
 class MyLoginPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -53,7 +55,7 @@ class MyLoginPageState extends State<MyLoginPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => registerUser()),
+                    MaterialPageRoute(builder: (context) => loginUser()),
                   );
                 },
                 child: Text("로그인"),
