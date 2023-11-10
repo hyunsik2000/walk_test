@@ -9,10 +9,10 @@ import 'package:project123/App/main1.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'login.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'package:http/http.dart' as http;
 
-final storage = FlutterSecureStorage();
+
 
 class MyLoginPage extends StatefulWidget {
   @override
@@ -36,9 +36,6 @@ Future<bool> kakaoLogingUsers(
       final Map<String, dynamic> responseData = jsonDecode(utf8.decode(response.bodyBytes));
       final String accessToken = responseData['accessToken'];
       final int accessTokenExpireIn = responseData['accessTokenExpireIn'];
-
-      await storage.write(key: 'accessToken', value: accessToken);
-      await storage.write(key: 'accessTokenExpireIn', value: accessTokenExpireIn.toString());
 
       showDialog(
         context: context,
