@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:core';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
-final storage = FlutterSecureStorage();
+
+import '../App/main1.dart';
+
 
 class loginUser extends StatefulWidget {
   @override
@@ -32,17 +34,22 @@ Future<bool> loginUsers(
       final String accessToken = responseData['accessToken'];
       final int accessTokenExpireIn = responseData['accessTokenExpireIn'];
       // accessToken을 안전하게 저장
-      await storage.write(key: 'accessToken', value: accessToken);
-      await storage.write(key: 'accessTokenExpireIn', value: accessTokenExpireIn.toString());
+
       // 이제 accessToken을 가져올 수 있습니다.
       // final storedAccessToken = await storage.read(key: 'loginAccessToken')
       showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: (BuildContext dialogContext) {
-            return MyAlertDialog(title: '처리 메시지',
-                content: '로그인에 성공하였습니다');
-          });
+        context: context,
+        barrierDismissible: true, // 사용자가 대화 상자 외부를 터치하여 닫을 수 있도록 설정
+        builder: (BuildContext dialogContext) {
+          return MyAlertDialog(
+            title: '처리 메시지',
+            content: '로그인에 성공하였습니다',
+          );
+        },
+      ).then((_) {
+        // 대화 상자가 닫힌 후에 실행될 코드
+        Navigator.push(context, MaterialPageRoute(builder: (context) => Main1()));
+      });
       return true;
     } else if (response.statusCode == 400) {
       final Map<String, dynamic> errorResponse = jsonDecode(utf8.decode(response.bodyBytes));
@@ -135,7 +142,6 @@ class loginUserState extends State<loginUser> {
                     if (loginResult) {
                       // 회원 등록 성공
                       print('로그인 성공');
-
                       // 이후 사용자 정보를 가져오는 요청 또는 다른 작업을 수행
                       // UserModel userModel = await fetchUserInfo(email);
                     } else {
