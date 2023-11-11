@@ -4,7 +4,7 @@ import 'dart:core';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'package:flutter/material.dart';
 import 'package:project123/loginuser/register.dart';
-import 'package:project123/App/main1.dart';
+import 'package:project123/App/home.dart';
 import 'login.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -44,7 +44,7 @@ Future<bool> kakaoLogingUsers(String code, BuildContext context) async {
       await storage.write(key: 'accessToken', value: accessToken);
       await storage.write(
           key: 'accessTokenExpireIn', value: accessTokenExpireIn.toString());
-
+      print(accessToken);
       showDialog(
         context: context,
         barrierDismissible: true, // 사용자가 대화 상자 외부를 터치하여 닫을 수 있도록 설정
@@ -56,7 +56,7 @@ Future<bool> kakaoLogingUsers(String code, BuildContext context) async {
         },
       ).then((_) {
         // 대화 상자가 닫힌 후에 실행될 코드
-        Navigator.push(context, MaterialPageRoute(builder: (context) => Main1()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
       });
       return true;
     } else if (response.statusCode == 400) {
@@ -110,7 +110,7 @@ class MyLoginPageState extends State<MyLoginPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => registerUser()),
+                    MaterialPageRoute(builder: (context) => SignupPage()),
                   );
                 },
                 child: Text("회원가입"),
