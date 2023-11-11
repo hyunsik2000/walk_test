@@ -1,18 +1,19 @@
 import 'dart:convert';
 import 'dart:core';
 
-
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'package:flutter/material.dart';
 import 'package:project123/loginuser/register.dart';
 import 'package:project123/App/main1.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'login.dart';
-import 'package:url_launcher/url_launcher.dart';
-
+import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-
+class KakaoLoginScreen extends StatefulWidget {
+  @override
+  _KakaoLoginScreenState createState() => _KakaoLoginScreenState();
+}
 
 class MyLoginPage extends StatefulWidget {
   @override
@@ -21,25 +22,32 @@ class MyLoginPage extends StatefulWidget {
   }
 }
 
-Future<bool> kakaoLogingUsers(
-    String code, BuildContext context) async {
+final storage = FlutterSecureStorage();
+
+Future<bool> kakaoLogingUsers(String code, BuildContext context) async {
   try {
-    var Url = Uri.parse("http://192.168.56.1:8080/auth/kakao"); //본인 IP 주소를  localhost 대신 넣기
+    var Url = Uri.parse(
+        "http://192.168.56.1:8080/auth/kakao"); //본인 IP 주소를  localhost 대신 넣기
     var response = await http.post(Url,
         headers: <String, String>{"Content-Type": "application/json"},
         body: jsonEncode(<String, String>{
-          "authorizationcode": code,
+          "authorizationCode" : code,
         }));
-    print(response);
+
     if (response.statusCode == 200) {
       // 로그인 성공 시
-      final Map<String, dynamic> responseData = jsonDecode(utf8.decode(response.bodyBytes));
+      final Map<String, dynamic> responseData =
+          jsonDecode(utf8.decode(response.bodyBytes));
       final String accessToken = responseData['accessToken'];
       final int accessTokenExpireIn = responseData['accessTokenExpireIn'];
-//12
+
+      await storage.write(key: 'accessToken', value: accessToken);
+      await storage.write(
+          key: 'accessTokenExpireIn', value: accessTokenExpireIn.toString());
+
       showDialog(
         context: context,
-        barrierDismissible: true,
+        barrierDismissible: true, // 사용자가 대화 상자 외부를 터치하여 닫을 수 있도록 설정
         builder: (BuildContext dialogContext) {
           return MyAlertDialog(
             title: '처리 메시지',
@@ -56,9 +64,9 @@ Future<bool> kakaoLogingUsers(
           context: context,
           barrierDismissible: true,
           builder: (BuildContext dialogContext) {
-            return MyAlertDialog(title: '오류 메시지',
-                content:'로그인 실패');
+            return MyAlertDialog(title: '오류 메시지', content: '로그인 실패');
           });
+      print("실패");
       return false;
     }
   } catch (e) {
@@ -66,10 +74,12 @@ Future<bool> kakaoLogingUsers(
     // 서버 연결 오류를 처리할 수 있는 코드를 추가하십시오.
     throw Exception('서버 연결 오류: $e');
   }
+  print('여기');
+  // 실패 로직
   return false;
 }
 
-class MyLoginPageState extends State<MyLoginPage>{
+class MyLoginPageState extends State<MyLoginPage> {
   late String authCode;
 
   @override
@@ -129,21 +139,30 @@ class MyLoginPageState extends State<MyLoginPage>{
               ElevatedButton(
                 child: Text('카카오톡으로 로그인'),
                 onPressed: () async {
+                  final code = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => KakaoLoginScreen()),
+                  );
+                  if (code != null) {
+                    print("3");
                     try {
-                      await UserApi.instance.loginWithKakaoAccount();
-                      print('카카오톡으로 로그인 성공');
-                    } catch (error) {
-                      print('카카오톡으로 로그인 실패 $error');
-                      // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
-                      // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
+                      bool kakakLoginResult = await kakaoLogingUsers(code, context);
+
+                      if (kakakLoginResult) {
+                        // 회원 등록 성공
+                        print('카카오톡 로그인 성공');
+                        // 이후 사용자 정보를 가져오는 요청 또는 다른 작업을 수행
+                        // UserModel userModel = await fetchUserInfo(email);
+                      } else {
+                        // 회원 등록 실패
+                        print('카카오톡 로그인 실패');
+                        // 다른 처리 수행
+                      }
+                    } catch (e) {
+                      print('서버 연결 오류: $e');
+                      // 서버 연결 오류를 처리
                     }
-                    // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
-                    try {
-                      await UserApi.instance.loginWithKakaoAccount();
-                      print('카카오계정으로 로그인 성공');
-                    } catch (error) {
-                      print('카카오계정으로 로그인 실패 $error');
-                    }
+                  }
                 },
               ),
               SizedBox(height: 20),
@@ -152,20 +171,6 @@ class MyLoginPageState extends State<MyLoginPage>{
         ),
       ),
     );
-  }
-}
-
-Future<void> _launchKakaoLoginUrl() async {
-  try {
-    final url = 'https://kauth.kakao.com/oauth/authorize?client_id=a0120cb04bb109d4e2a6ad0a2ea8f24d&redirect_uri=http://localhost:8080/kakao/callback&response_type=code';
-    if (await url_launcher.canLaunch(url)) {
-      await url_launcher.launch(url);
-      print("1단계 성공");
-    } else {
-      print('URL을 열 수 없습니다.');
-    }
-  } catch (e) {
-    print('카카오 로그인 실패: $e');
   }
 }
 
@@ -198,6 +203,37 @@ class MyAlertDialog extends StatelessWidget {
           // 내용 텍스트 스타일을 직접 지정
           fontSize: 16.0,
         ),
+      ),
+    );
+  }
+}
+
+class _KakaoLoginScreenState extends State<KakaoLoginScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("카카오 로그인"),
+      ),
+      body: WebView(
+        initialUrl:
+            "https://kauth.kakao.com/oauth/authorize?client_id=a0120cb04bb109d4e2a6ad0a2ea8f24d&redirect_uri=http://localhost:8080/kakao/callback&response_type=code",
+        javascriptMode: JavascriptMode.unrestricted,
+        navigationDelegate: (NavigationRequest request) {
+          if (request.url.startsWith("http://localhost:8080/kakao/callback")) {
+            print("1");
+            Uri uri = Uri.parse(request.url);
+
+            final code = uri.queryParameters["code"];
+            if (code != null) {
+              print("2");
+              // 인가 코드를 사용하여 서버에 액세스 토큰 요청
+              Navigator.pop(context, code);
+            }
+            return NavigationDecision.prevent;
+          }
+          return NavigationDecision.navigate;
+        },
       ),
     );
   }
