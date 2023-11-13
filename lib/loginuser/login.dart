@@ -36,11 +36,9 @@ Future<bool> loginUsers(
       // 로그인 성공
       final Map<String, dynamic> responseData = jsonDecode(utf8.decode(response.bodyBytes));
       final String accessToken = responseData['accessToken'];
-      final int accessTokenExpireIn = responseData['accessTokenExpireIn'];
       // accessToken을 안전하게 저장
       await storage.write(key: 'accessToken', value: accessToken);
-      await storage.write(
-          key: 'accessTokenExpireIn', value: accessTokenExpireIn.toString());
+
 
       // 이제 accessToken을 가져올 수 있습니다.
       // final storedAccessToken = await storage.read(key: 'loginAccessToken')

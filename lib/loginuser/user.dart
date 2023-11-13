@@ -33,17 +33,16 @@ Future<bool> kakaoLogingUsers(String code, BuildContext context) async {
         body: jsonEncode(<String, String>{
           "authorizationCode" : code,
         }));
-
+    print("code:"+code);
     if (response.statusCode == 200) {
       // 로그인 성공 시
       final Map<String, dynamic> responseData =
           jsonDecode(utf8.decode(response.bodyBytes));
       final String accessToken = responseData['accessToken'];
-      final int accessTokenExpireIn = responseData['accessTokenExpireIn'];
+
 
       await storage.write(key: 'accessToken', value: accessToken);
-      await storage.write(
-          key: 'accessTokenExpireIn', value: accessTokenExpireIn.toString());
+
       print(accessToken);
       showDialog(
         context: context,

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:project123/UI/screens/profile/profile_screen.dart';
 import 'package:project123/UI/image_loader.dart';
+import 'package:project123/UI/screens/home/home.dart';
+import 'package:project123/UI/screens/profile/profile_screen.dart';
+import 'package:project123/UI/screens/test/test_screen.dart';
 import 'package:project123/UI/size_config.dart';
-
-import '../UI/screens/test/test_screen.dart';
 
 class TabbarItem {
   final String lightIcon;
@@ -23,30 +23,31 @@ class TabbarItem {
   BottomNavigationBarItem get bold => item(true);
 }
 
-class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+class FRTabbarScreen extends StatefulWidget {
+  const FRTabbarScreen({super.key});
 
   @override
-  _HomeState createState() => _HomeState();
+  State<FRTabbarScreen> createState() => _FRTabbarScreenState();
 }
 
-class _HomeState extends State<Home> {
-  int _select = 0; // 선택된 메뉴의 인덱스
+class _FRTabbarScreenState extends State<FRTabbarScreen> {
+  int _select = 0;
 
-  // 각 메뉴에 해당하는 화면을 저장할 리스트
   final screens = [
-    const TestScreen(
-      title: '메인',
+    const HomeScreen(
+      title: '首页0',
     ),
-    const TestScreen(title: '게시판'),
+    const TestScreen(title: 'Cart'),
+    const TestScreen(title: 'Orders'),
+    const TestScreen(title: 'Wallet'),
     const ProfileScreen(),
   ];
 
   static Image generateIcon(String path) {
     return Image.asset(
-      '${ImageLoader.rootPaht}tabbar/$path',
-      width: 20,
-      height: 20,
+      '${ImageLoader.rootPaht}/tabbar/$path',
+      width: 24,
+      height: 24,
     );
   }
 
@@ -54,30 +55,35 @@ class _HomeState extends State<Home> {
     BottomNavigationBarItem(
       icon: generateIcon('light/Home@2x.png'),
       activeIcon: generateIcon('bold/Home@2x.png'),
-      label: '홈',
+      label: 'Home',
+    ),
+    BottomNavigationBarItem(
+      icon: generateIcon('light/Bag@2x.png'),
+      activeIcon: generateIcon('bold/Bag@2x.png'),
+      label: 'Cart',
+    ),
+    BottomNavigationBarItem(
+      icon: generateIcon('light/Buy@2x.png'),
+      activeIcon: generateIcon('bold/Buy@2x.png'),
+      label: 'Orders',
     ),
     BottomNavigationBarItem(
       icon: generateIcon('light/Wallet@2x.png'),
       activeIcon: generateIcon('bold/Wallet@2x.png'),
-      label: '게시판',
+      label: 'Wallet',
     ),
     BottomNavigationBarItem(
       icon: generateIcon('light/Profile@2x.png'),
       activeIcon: generateIcon('bold/Profile@2x.png'),
-      label: '내정보',
+      label: 'Profile',
     ),
   ];
-  // 메뉴를 선택했을 때 실행되는 콜백 함수
-  void _onItemTapped(int index) {
-    setState(() {
-      _select = index;
-    });
-  }
 
   @override
   void setState(VoidCallback fn) {
     super.setState(fn);
   }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -102,4 +108,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
